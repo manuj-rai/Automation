@@ -2,23 +2,33 @@ name: Daily Auto Commit
 
 on:
   schedule:
-    - cron: "0 2 * * *"  # Runs daily at 2:00 AM UTC = 8:00 AM IST
-  workflow_dispatch:  # Allows manual trigger from GitHub UI
+    - cron: "0 2 * * *"  # 8:00 AM IST
+  workflow_dispatch:      # manual run option
 
 jobs:
   auto-commit:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Ensure index.html exists
+        run: |
+          touch index.html
+
       - name: Make a change to index.html
-        run: echo "<!-- Automated update at $(date) -->" >> index.html
+        run: echo "<!-- Auto update at $(date) -->" >> index.html
 
       - name: Commit and push changes
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git add index.html
-          git commit -m "Automated daily commit from GitHub Actions" || echo "No changes to commit"
-          git push
+          
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Automated daily commit from GitHub Actions"
+            git push
+          fi
