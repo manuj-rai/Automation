@@ -2,8 +2,8 @@ name: Daily Auto Commit
 
 on:
   schedule:
-    - cron: "0 2 * * *"  # 8:00 AM IST
-  workflow_dispatch:      # manual run option
+    - cron: "0 2 * * *"  # Runs at 8:00 AM IST
+  workflow_dispatch:
 
 jobs:
   auto-commit:
@@ -17,18 +17,20 @@ jobs:
         run: |
           touch index.html
 
-      - name: Make a change to index.html
+      - name: Append timestamp
         run: echo "<!-- Auto update at $(date) -->" >> index.html
 
-      - name: Commit and push changes
+      - name: Configure Git
         run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
+      - name: Commit and Push Changes
+        run: |
           git add index.html
-          
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "Automated daily commit from GitHub Actions"
-            git push
-          fi
+            git commit -m "Automated daily commit"
+            git branch
+            git push origin HEAD:$(git rev-parse --abbrev-ref HEAD)
