@@ -2,7 +2,7 @@ name: Daily Auto Commit
 
 on:
   schedule:
-    - cron: "0 2 * * *"  # Runs at 8:00 AM IST
+    - cron: "0 2 * * *" # Runs daily at 8:00 AM IST
   workflow_dispatch:
 
 jobs:
@@ -13,24 +13,23 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Ensure index.html exists
+      - name: Ensure file exists
         run: |
           touch index.html
 
-      - name: Append timestamp
-        run: echo "<!-- Auto update at $(date) -->" >> index.html
-
-      - name: Configure Git
+      - name: Append update to index.html
         run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
+          echo "<!-- Auto update at $(date) -->" >> index.html
 
-      - name: Commit and Push Changes
+      - name: Set up Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Commit and push if there are changes
         run: |
           git add index.html
-          if git diff --cached --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "Automated daily commit"
-            git branch
-            git push origin HEAD:$(git rev-parse --abbrev-ref HEAD)
+          git diff --cached --quiet && echo "No changes to commit" || (
+            git commit -m "Automated daily commit from GitHub Actions"
+            git push origin HEAD
+          )
