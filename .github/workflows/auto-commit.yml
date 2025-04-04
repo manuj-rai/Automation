@@ -17,9 +17,9 @@ jobs:
         run: |
           touch index.html
 
-      - name: Append update to index.html
+      - name: Append update with IST timestamp
         run: |
-          echo "<!-- Auto update at $(date) -->" >> index.html
+          TZ="Asia/Kolkata" date +"<!-- Auto update at %Y-%m-%d %H:%M:%S IST -->" >> index.html
 
       - name: Set up Git
         run: |
